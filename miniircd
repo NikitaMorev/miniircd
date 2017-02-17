@@ -46,6 +46,12 @@ def create_directory(path):
         os.makedirs(path)
 
 
+def get_channel_logdir(base_dir, channel_name):
+    channel_num = int(VALID_CHANNEL_NAME_REGEXP.match(channel_name).group(1))
+    channel_dirs = (str(channel_num % 1000).zfill(4), str(channel_num % 4).zfill(2))
+    return os.path.join(base_dir, *channel_dirs)
+
+
 class Channel(object):
     def __init__(self, server, name):
         self.server = server
@@ -61,9 +67,7 @@ class Channel(object):
         else:
             self._state_path = None
 
-        channel_num = int(VALID_CHANNEL_NAME_REGEXP.match(self.name).group(1))
-        channel_dirs = (str(channel_num % 1000).zfill(4), str(channel_num % 4).zfill(2))
-        self.logdir = os.path.join(server.logdir, *channel_dirs)
+        self.logdir = get_channel_logdir(server.logdir, self.name)
         create_directory(self.logdir)
 
     def add_member(self, client):
