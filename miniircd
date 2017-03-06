@@ -662,6 +662,7 @@ class Server(object):
         self.chroot = options.chroot
         self.setuid = options.setuid
         self.statedir = options.statedir
+        self.auth_salt = options.auth_salt
 
         if self.ssl_pem_file:
             self.ssl = __import__("ssl")
@@ -1034,6 +1035,10 @@ def main(argv):
         "--verbose",
         action="store_true",
         help="be verbose (print some progress messages to stdout)")
+    op.add_option(
+        "--auth-salt",
+        metavar="X",
+        help="require connection auth-salt X; default: no auth-salt")
     if os.name == "posix":
         op.add_option(
             "--chroot",
