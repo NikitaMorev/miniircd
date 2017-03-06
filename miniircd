@@ -193,10 +193,6 @@ class Client(object):
             else:
                 self.password = arguments[0].lower()
                 self.__handle_command = self.__registration_handler
-                # if arguments[0].lower() == server.password:
-                #     self.__handle_command = self.__registration_handler
-                # else:
-                #     self.reply("464 :Password incorrect")
         elif command == "QUIT":
             self.disconnect("Client quit")
             return
@@ -223,7 +219,7 @@ class Client(object):
                 # TODO: remove "and self.password is not None"
                 if self.server.auth_salt and self.password is not None:
                     hasher = pyhash.city_64()
-                    player_id = int(self.__valid_nickname_regexp.match(self.nickname).group(1))
+                    player_id = self.__valid_nickname_regexp.match(self.nickname).group(2)
                     sign_data = '&'.join((player_id, self.server.auth_salt))
                     if self.password != str(hasher(str(sign_data))):
                         self.__handle_command = self.__pass_handler
