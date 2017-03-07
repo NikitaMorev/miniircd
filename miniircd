@@ -202,7 +202,7 @@ class Client(object):
         hasher = pyhash.city_64()
         player_id = cls.__valid_nickname_regexp.match(nickname).group(2)
         sign_data = '&'.join((player_id, auth_salt))
-        return password != str(hasher(str(sign_data)))
+        return password == str(hasher(str(sign_data)))
 
     def __registration_handler(self, command, arguments):
         server = self.server
