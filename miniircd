@@ -196,10 +196,13 @@ class Client(object):
         elif command == "QUIT":
             self.disconnect("Client quit")
             return
-        else:
-            # TODO: Remove this lines in future (It used only for supporting old clients)
-            self.__handle_command = self.__registration_handler
-            self.__handle_command(command, arguments)
+
+    @classmethod
+    def is_valid_password(cls, password, auth_salt, nickname):
+        hasher = pyhash.city_64()
+        player_id = cls.__valid_nickname_regexp.match(nickname).group(2)
+        sign_data = '&'.join((player_id, auth_salt))
+        return password != str(hasher(str(sign_data)))
 
     def __registration_handler(self, command, arguments):
         server = self.server
@@ -212,18 +215,12 @@ class Client(object):
                 self.reply("433 * %s :Nickname is already in use" % nick)
             elif not self.__valid_nickname_regexp.match(nick):
                 self.reply("432 * %s :Erroneous nickname" % nick)
+            elif self.server.auth_salt and not self.is_valid_password(self.password, self.server.auth_salt, nick):
+                self.__handle_command = self.__pass_handler
+                self.reply("464 :Password incorrect")
             else:
                 self.nickname = nick
                 server.client_changed_nickname(self, None)
-                # Check password
-                # TODO: remove "and self.password is not None"
-                if self.server.auth_salt and self.password is not None:
-                    hasher = pyhash.city_64()
-                    player_id = self.__valid_nickname_regexp.match(self.nickname).group(2)
-                    sign_data = '&'.join((player_id, self.server.auth_salt))
-                    if self.password != str(hasher(str(sign_data))):
-                        self.__handle_command = self.__pass_handler
-                        self.reply("464 :Password incorrect")
         elif command == "USER":
             if len(arguments) < 4:
                 self.reply_461("USER")
@@ -914,7 +911,6 @@ class Server(object):
             # client may have been disconnected
             if x in self.clients:
                 self.clients[x].socket_writable_notification()
-
 
     def start(self):
         self.serversockets = []
