@@ -201,7 +201,7 @@ class Client(object):
     def is_valid_password(cls, password, auth_salt, nickname):
         hasher = pyhash.city_64()
         player_id = cls.__valid_nickname_regexp.match(nickname).group(2)
-        sign_data = '&'.join((player_id, auth_salt))
+        sign_data = '&'.join(('{:0>64}'.format(player_id), auth_salt))
         return password == str(hasher(str(sign_data)))
 
     def __registration_handler(self, command, arguments):
