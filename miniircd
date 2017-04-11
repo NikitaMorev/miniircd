@@ -120,7 +120,7 @@ class Client(object):
     __linesep_regexp = re.compile(r"\r?\n")
     # The RFC limit for nicknames is 9 characters, but what the heck.
     __valid_nickname_regexp = re.compile(
-        r"^(facebook|Melesta|System:bot):([0-9]{0,50})$")
+        r"^(facebook|Melesta|SystemBot):([0-9]{0,50})$")
     __valid_channelname_regexp = VALID_CHANNEL_NAME_REGEXP
 
     def __init__(self, server, client_socket):
@@ -200,7 +200,7 @@ class Client(object):
     @classmethod
     def is_valid_password(cls, password, nickname, auth_salt, auth_bot_salt=None):
         hasher = pyhash.city_64()
-        salt = auth_salt if not nickname.startswith('System:bot') or not auth_bot_salt else auth_bot_salt
+        salt = auth_salt if not nickname.startswith('SystemBot') or not auth_bot_salt else auth_bot_salt
         player_id = cls.__valid_nickname_regexp.match(nickname).group(2)
         sign_data = '&'.join(('{:0>65}'.format(player_id), salt))
         return password == str(hasher(str(sign_data)))
